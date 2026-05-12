@@ -353,6 +353,7 @@ export class MainScene extends Phaser.Scene {
 
     const runStep = (stepIndex: number) => {
       const cell = BOARD_PATH[steps[stepIndex]]
+      this.createStepParticles(id)
       this.movePiece(id, cell.x, cell.y, 230, () => {
         if (stepIndex >= steps.length - 1) onComplete()
         else runStep(stepIndex + 1)
@@ -383,6 +384,33 @@ export class MainScene extends Phaser.Scene {
     })
   }
 
+  private createStepParticles(id: number) {
+    const piece = this.pieces[id]
+    const colors = [0xe74c3c, 0x3498db, 0x2ecc71, 0xf1c40f]
+
+    for (let i = 0; i < 5; i += 1) {
+      const p = this.add.circle(
+        piece.x + Phaser.Math.Between(-12, 12),
+        piece.y + Phaser.Math.Between(8, 24),
+        Phaser.Math.FloatBetween(2, 4),
+        colors[id],
+        0.75
+      )
+      p.setDepth(22)
+
+      this.tweens.add({
+        targets: p,
+        x: p.x + Phaser.Math.Between(-20, 20),
+        y: p.y + Phaser.Math.Between(12, 28),
+        alpha: 0,
+        scale: 0.25,
+        duration: Phaser.Math.Between(360, 620),
+        ease: 'Sine.easeOut',
+        onComplete: () => p.destroy()
+      })
+    }
+  }
+
   private playCellEffect(type: string) {
     const width = this.scale.width
     const height = this.scale.height
@@ -398,6 +426,34 @@ export class MainScene extends Phaser.Scene {
       ease: 'Cubic.easeOut',
       onComplete: () => flash.destroy()
     })
+
+    const glyphs = ['𓂀', '𓆣', '𓇳', '𓋹', '𓃭']
+    for (let i = 0; i < 14; i += 1) {
+      const glyph = this.add.text(
+        width / 2 + Phaser.Math.Between(-90, 90),
+        height / 2 + Phaser.Math.Between(-60, 60),
+        Phaser.Utils.Array.GetRandom(glyphs),
+        {
+          fontSize: `${Phaser.Math.Between(18, 34)}px`,
+          color: '#ffe8a3'
+        }
+      ).setOrigin(0.5)
+      glyph.setDepth(31)
+
+      this.tweens.add({
+        targets: glyph,
+        y: glyph.y - Phaser.Math.Between(70, 140),
+        alpha: 0,
+        scale: 1.4,
+        duration: Phaser.Math.Between(700, 1200),
+        ease: 'Cubic.easeOut',
+        onComplete: () => glyph.destroy()
+      })
+    }
+
+    if (['apophis', 'apophisStrong', 'darkness', 'fire', 'chains', 'labyrinth'].includes(type)) {
+      this.cameras.main.shake(220, 0.006)
+    }
   }
 
   private playVictoryEffect() {
