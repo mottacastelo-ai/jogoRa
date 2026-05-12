@@ -6,7 +6,7 @@ Projeto do jogo de tabuleiro online **A Jornada Noturna de Rá**, baseado no tab
 
 Criar uma versão digital premium, jogável no navegador, com visual egípcio, tabuleiro ilustrado, peças animadas, dado, cartas e regras completas.
 
-## Stack planejada
+## Stack
 
 - React
 - Vite
@@ -14,61 +14,53 @@ Criar uma versão digital premium, jogável no navegador, com visual egípcio, t
 - TypeScript
 - GitHub Pages
 
-## Escopo da versão 2.0
+## Recursos já implementados
 
-- Tela inicial do jogo
-- Tabuleiro original como asset principal
-- Peças originais digitalizadas/recortadas
-- Movimento animado das peças pelo caminho
-- Sistema de turnos para 2 a 4 jogadores
-- Dado animado
-- Casas especiais: Energia, Barca, Correntes, Escuridão, Fogo, Labirinto, Apófis, Deuses, Olho de Rá e Apófis Forte
-- Carta Olho de Rá para ignorar desafio negativo
-- Batalha final contra Apófis
-- Tela de vitória
-- Layout responsivo para desktop e mobile
+- Tela inicial cinematográfica
+- Sistema de turnos
+- Movimento animado casa por casa
+- HUD premium
+- Partículas e glifos egípcios
+- Efeitos especiais de eventos
+- Camera shake
+- Sistema de vitória
+- Cartas/eventos animados
+- Atmosfera visual egípcia
+- Preparação para multiplayer futuro
 
-## Estrutura de assets sugerida
+## Estrutura de assets
 
 ```text
 public/assets/
   board/
-    tabuleiro-original.png
+    tabuleiro-original.jpeg
   pieces/
-    jogador-vermelho.png
-    jogador-azul.png
-    jogador-verde.png
-    jogador-dourado.png
-  ui/
-    carta-olho-ra.png
-    dado.png
-  audio/
-    dice.mp3
-    move.mp3
-    victory.mp3
+    pecas-originais.jpeg
 ```
 
 ## Desenvolvimento
-
-Após clonar o repositório:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build:
+## Build
 
 ```bash
 npm run build
 ```
 
-Deploy no GitHub Pages:
+## Deploy automático
 
-```bash
-npm run deploy
-```
+O projeto publica automaticamente no GitHub Pages via GitHub Actions.
 
-## Observação
+## Objetivos futuros
 
-O projeto deve priorizar uma experiência visual forte e fluida, mas com arquitetura simples e sustentável.
+- Multiplayer online
+- Sons e trilha sonora
+- Peças originais recortadas automaticamente
+- Refinamento total do tabuleiro
+- IA para modo solo
+- Sistema completo de cartas
+- Mobile polish
