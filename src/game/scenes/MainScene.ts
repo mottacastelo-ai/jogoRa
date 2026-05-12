@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { BOARD_PATH } from '../data/boardPath'
+import { DANGER_CELL_TYPES, PLAYER_COLORS, PLAYER_SYMBOLS } from '../data/gameConfig'
+import { AudioSystem } from '../systems/audio'
 import {
   applyCellEffect,
   createInitialGameState,
@@ -10,6 +12,7 @@ import {
 export class MainScene extends Phaser.Scene {
   private pieces: Phaser.GameObjects.Container[] = []
   private state = createInitialGameState()
+  private audio = new AudioSystem()
   private infoText!: Phaser.GameObjects.Text
   private currentText!: Phaser.GameObjects.Text
   private diceText!: Phaser.GameObjects.Text
@@ -96,6 +99,7 @@ export class MainScene extends Phaser.Scene {
 
     startButton.on('pointerdown', () => {
       this.started = true
+      this.audio.playGood()
       this.tweens.add({
         targets: this.startOverlay,
         alpha: 0,
@@ -206,17 +210,14 @@ export class MainScene extends Phaser.Scene {
   }
 
   private createPieces(width: number, height: number) {
-    const colors = [0xe74c3c, 0x3498db, 0x2ecc71, 0xf1c40f]
-    const symbols = ['☀', '𓂀', '☥', '★']
-
     this.state.players.forEach((player, index) => {
       const start = BOARD_PATH[0]
-      const glow = this.add.circle(0, 0, 30, colors[index], 0.32)
+      const glow = this.add.circle(0, 0, 30, PLAYER_COLORS[index], 0.32)
       const shadow = this.add.ellipse(0, 18, 44, 14, 0x000000, 0.28)
-      const pedestal = this.add.rectangle(0, 10, 34, 16, colors[index], 0.95)
-      const figure = this.add.triangle(0, -10, 0, -28, -18, 14, 18, 14, colors[index], 1)
+      const pedestal = this.add.rectangle(0, 10, 34, 16, PLAYER_COLORS[index], 0.95)
+      const figure = this.add.triangle(0, -10, 0, -28, -18, 14, 18, 14, PLAYER_COLORS[index], 1)
       const head = this.add.circle(0, -28, 10, 0xffe1a8, 1)
-      const symbol = this.add.text(0, 8, symbols[index], {
+      const symbol = this.add.text(0, 8, PLAYER_SYMBOLS[index], {
         fontSize: '15px',
         color: '#ffffff',
         fontStyle: 'bold'
@@ -277,6 +278,7 @@ export class MainScene extends Phaser.Scene {
     if (!this.started || this.state.winnerId !== null || this.rolling) return
 
     this.rolling = true
+    this.audio.playDice()
     this.animateDice(() => {
       this.executeTurn()
       this.rolling = false
@@ -311,6 +313,7 @@ export class MainScene extends Phaser.Scene {
       if (currentPlayer.position >= BOARD_PATH.length - 1) {
         this.state.winnerId = currentPlayer.id
         this.state.message = `${currentPlayer.name} venceu A Jornada Noturna de Rá. O sol nasceu!`
+        this.audio.playVictory()
         this.playVictoryEffect()
       }
 
@@ -354,6 +357,7 @@ export class MainScene extends Phaser.Scene {
 
     const runStep = (stepIndex: number) => {
       const cell = BOARD_PATH[steps[stepIndex]]
+      this.audio.playStep()
       this.createStepParticles(id)
       this.movePiece(id, cell.x, cell.y, 230, () => {
         if (stepIndex >= steps.length - 1) onComplete()
@@ -387,14 +391,13 @@ export class MainScene extends Phaser.Scene {
 
   private createStepParticles(id: number) {
     const piece = this.pieces[id]
-    const colors = [0xe74c3c, 0x3498db, 0x2ecc71, 0xf1c40f]
 
     for (let i = 0; i < 5; i += 1) {
       const p = this.add.circle(
         piece.x + Phaser.Math.Between(-12, 12),
         piece.y + Phaser.Math.Between(8, 24),
         Phaser.Math.FloatBetween(2, 4),
-        colors[id],
+        PLAYER_COLORS[id],
         0.75
       )
       p.setDepth(22)
@@ -415,7 +418,7 @@ export class MainScene extends Phaser.Scene {
   private showEventCard(label: string, type: string) {
     const width = this.scale.width
     const height = this.scale.height
-    const isDanger = ['apophis', 'apophisStrong', 'darkness', 'fire', 'chains', 'labyrinth'].includes(type)
+    const isDanger = DANGER_CELL_TYPES.includes(type)
     const color = isDanger ? 0x5b1020 : 0x123b30
     const border = isDanger ? 0xff6b6b : 0xffd166
 
@@ -457,6 +460,11 @@ export class MainScene extends Phaser.Scene {
     const width = this.scale.width
     const height = this.scale.height
     const color = this.getCellColor(type)
+    const isDanger = DANGER_CELL_TYPES.includes(type)
+
+    if (isDanger) this.audio.playDanger()
+    else this.audio.playGood()
+
     const flash = this.add.circle(width / 2, height / 2, 60, color, 0.18)
     flash.setDepth(30)
 
@@ -493,7 +501,7 @@ export class MainScene extends Phaser.Scene {
       })
     }
 
-    if (['apophis', 'apophisStrong', 'darkness', 'fire', 'chains', 'labyrinth'].includes(type)) {
+    if (isDanger) {
       this.cameras.main.shake(220, 0.006)
     }
   }
