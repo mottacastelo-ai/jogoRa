@@ -20,69 +20,59 @@ body {
   overflow-x: hidden;
 }
 
-.app-shell {
+.game-layout {
   min-height: 100vh;
-  position: relative;
+  padding: 28px;
+}
+
+.top-bar {
+  width: min(1400px, 96vw);
+  margin: 0 auto 22px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
+  gap: 20px;
 }
 
-.overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(255,220,120,.08), transparent 50%);
-  pointer-events: none;
+.eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: #ffcc67;
+  letter-spacing: .12em;
+  font-size: 12px;
 }
 
-.hero {
-  position: relative;
-  z-index: 2;
-  width: min(900px, 92vw);
-  text-align: center;
-  padding: 60px 40px;
-  border-radius: 32px;
-  background: rgba(10,12,20,.72);
-  border: 1px solid rgba(255,220,120,.2);
+.top-bar h1 {
+  font-size: clamp(32px, 5vw, 72px);
+  line-height: .95;
+  color: #ffd479;
+}
+
+.status-pill {
+  padding: 14px 18px;
+  border-radius: 999px;
+  background: rgba(255,190,80,.12);
+  border: 1px solid rgba(255,210,120,.25);
+  color: #ffe6a5;
+}
+
+.game-shell {
+  width: min(1400px, 96vw);
+  margin: 0 auto;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(255,220,120,.18);
+  background: rgba(10,12,20,.78);
   box-shadow: 0 30px 80px rgba(0,0,0,.45);
 }
 
-.hero h1 {
-  font-size: clamp(42px, 7vw, 96px);
-  line-height: .92;
-  margin-bottom: 20px;
-  color: #ffcf66;
-  text-shadow: 0 0 20px rgba(255,180,50,.25);
+.game-canvas {
+  width: 100%;
+  aspect-ratio: 4 / 3;
 }
 
-.hero p {
-  font-size: 20px;
-  line-height: 1.5;
-  max-width: 720px;
-  margin: 0 auto;
-  color: #ffe8b4;
-}
-
-.status-card {
-  margin-top: 36px;
-  display: inline-flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 18px 26px;
-  border-radius: 20px;
-  background: rgba(255,180,50,.12);
-  border: 1px solid rgba(255,200,120,.28);
-}
-
-.status-card span {
-  font-size: 12px;
-  letter-spacing: .14em;
-  opacity: .7;
-}
-
-.status-card strong {
-  font-size: 20px;
-  color: #ffd87a;
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
