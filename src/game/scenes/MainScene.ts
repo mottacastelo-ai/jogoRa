@@ -9,6 +9,8 @@ import {
   rollDice
 } from '../systems/gameState'
 
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`
+
 export class MainScene extends Phaser.Scene {
   private pieces: Phaser.GameObjects.Container[] = []
   private state = createInitialGameState()
@@ -28,8 +30,8 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('board', '/jogoRa/assets/board/tabuleiro-original.jpeg')
-    this.load.image('pieces', '/jogoRa/assets/pieces/pecas-originais.jpeg')
+    this.load.image('board', assetPath('assets/board/tabuleiro-original.jpeg'))
+    this.load.image('pieces', assetPath('assets/pieces/pecas-originais.jpeg'))
   }
 
   create() {
