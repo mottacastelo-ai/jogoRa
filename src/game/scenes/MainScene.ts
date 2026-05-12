@@ -306,6 +306,7 @@ export class MainScene extends Phaser.Scene {
       const message = applyCellEffect(currentPlayer, targetCell, BOARD_PATH.length)
       this.state.message = `${currentPlayer.name} tirou ${dice}. ${message}`
       this.playCellEffect(targetCell.type)
+      this.showEventCard(targetCell.label, targetCell.type)
 
       if (currentPlayer.position >= BOARD_PATH.length - 1) {
         this.state.winnerId = currentPlayer.id
@@ -409,6 +410,47 @@ export class MainScene extends Phaser.Scene {
         onComplete: () => p.destroy()
       })
     }
+  }
+
+  private showEventCard(label: string, type: string) {
+    const width = this.scale.width
+    const height = this.scale.height
+    const isDanger = ['apophis', 'apophisStrong', 'darkness', 'fire', 'chains', 'labyrinth'].includes(type)
+    const color = isDanger ? 0x5b1020 : 0x123b30
+    const border = isDanger ? 0xff6b6b : 0xffd166
+
+    const bg = this.add.rectangle(width / 2, height * 0.17, 470, 118, color, 0.92)
+    bg.setStrokeStyle(3, border, 0.88)
+    bg.setDepth(70)
+
+    const icon = isDanger ? '⚠' : '𓂀'
+    const title = this.add.text(width / 2, height * 0.145, `${icon} ${label}`, {
+      fontSize: '30px',
+      color: '#fff2c7',
+      fontStyle: 'bold'
+    }).setOrigin(0.5)
+    title.setDepth(71)
+
+    const sub = this.add.text(width / 2, height * 0.198, isDanger ? 'Perigo da Duat' : 'Ajuda divina', {
+      fontSize: '18px',
+      color: '#ffe8a3'
+    }).setOrigin(0.5)
+    sub.setDepth(71)
+
+    const card = this.add.container(0, -28, [bg, title, sub])
+    card.setDepth(70)
+    card.setAlpha(0)
+
+    this.tweens.add({
+      targets: card,
+      y: 0,
+      alpha: 1,
+      duration: 240,
+      ease: 'Sine.easeOut',
+      yoyo: true,
+      hold: 900,
+      onComplete: () => card.destroy()
+    })
   }
 
   private playCellEffect(type: string) {
