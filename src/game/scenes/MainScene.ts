@@ -32,58 +32,103 @@ export class MainScene extends Phaser.Scene {
     const height = this.scale.height
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x05070d)
-    this.add.circle(width * 0.5, height * 0.5, 560, 0xd79a2b, 0.08)
+    this.createAtmosphere(width, height)
 
     const board = this.add.image(width * 0.5, height * 0.53, 'board')
     board.setDisplaySize(width * 0.72, height * 0.88)
+    board.setDepth(1)
 
     this.createHud(width, height)
     this.createPathMarkers(width, height)
     this.createPieces(width, height)
     this.createRollButton(width, height)
+    this.createAssetPreview(width, height)
 
     this.updateUI()
+  }
+
+  private createAtmosphere(width: number, height: number) {
+    this.add.circle(width * 0.5, height * 0.5, 560, 0xd79a2b, 0.08)
+    this.add.circle(width * 0.17, height * 0.18, 180, 0xffd166, 0.08)
+    this.add.circle(width * 0.86, height * 0.18, 220, 0x315083, 0.16)
+
+    for (let i = 0; i < 42; i += 1) {
+      const star = this.add.circle(
+        Phaser.Math.Between(20, width - 20),
+        Phaser.Math.Between(20, height - 20),
+        Phaser.Math.FloatBetween(1, 2.8),
+        0xffe8a3,
+        Phaser.Math.FloatBetween(0.18, 0.58)
+      )
+      star.setDepth(0)
+      this.tweens.add({
+        targets: star,
+        alpha: Phaser.Math.FloatBetween(0.08, 0.32),
+        duration: Phaser.Math.Between(900, 2200),
+        yoyo: true,
+        repeat: -1
+      })
+    }
   }
 
   private createHud(width: number, height: number) {
     this.add.rectangle(220, 92, 390, 138, 0x10152a, 0.82)
       .setStrokeStyle(2, 0xffd166, 0.32)
+      .setDepth(40)
 
     this.add.text(42, 34, 'A Jornada Noturna de Rá', {
       fontSize: '28px',
       color: '#ffd77a',
       fontStyle: 'bold'
-    })
+    }).setDepth(41)
 
     this.currentText = this.add.text(42, 78, '', {
       fontSize: '22px',
       color: '#ffe8a3'
-    })
+    }).setDepth(41)
 
     this.diceText = this.add.text(42, 112, '🎲 --', {
       fontSize: '26px',
       color: '#ffffff'
-    })
+    }).setDepth(41)
 
     this.add.rectangle(width - 235, height - 120, 410, 150, 0x10152a, 0.84)
       .setStrokeStyle(2, 0xffd166, 0.34)
+      .setDepth(40)
 
     this.eventTitle = this.add.text(width - 420, height - 176, 'Evento', {
       fontSize: '18px',
       color: '#ffd77a',
       fontStyle: 'bold'
-    })
+    }).setDepth(41)
 
     this.infoText = this.add.text(width - 420, height - 142, this.state.message, {
       fontSize: '18px',
       color: '#ffe7b3',
       wordWrap: { width: 350 }
-    })
+    }).setDepth(41)
 
     this.shieldText = this.add.text(width - 420, height - 48, '', {
       fontSize: '16px',
       color: '#b7e4ff'
-    })
+    }).setDepth(41)
+  }
+
+  private createAssetPreview(width: number, height: number) {
+    const frame = this.add.rectangle(width - 140, height * 0.48, 210, 250, 0x10152a, 0.72)
+    frame.setStrokeStyle(2, 0xffd166, 0.28)
+    frame.setDepth(9)
+
+    this.add.text(width - 230, height * 0.34, 'Peças originais', {
+      fontSize: '18px',
+      color: '#ffd77a',
+      fontStyle: 'bold'
+    }).setDepth(10)
+
+    const pieces = this.add.image(width - 140, height * 0.49, 'pieces')
+    pieces.setDisplaySize(170, 190)
+    pieces.setDepth(10)
+    pieces.setAlpha(0.9)
   }
 
   private createPathMarkers(width: number, height: number) {
@@ -97,6 +142,7 @@ export class MainScene extends Phaser.Scene {
       )
 
       marker.setStrokeStyle(2, 0xffd166, 0.5)
+      marker.setDepth(12)
     })
   }
 
@@ -106,7 +152,7 @@ export class MainScene extends Phaser.Scene {
 
     this.state.players.forEach((player, index) => {
       const start = BOARD_PATH[0]
-      const glow = this.add.circle(0, 0, 26, colors[index], 0.22)
+      const glow = this.add.circle(0, 0, 28, colors[index], 0.26)
       const body = this.add.circle(0, 0, 17, colors[index])
       const symbol = this.add.text(0, -1, symbols[index], {
         fontSize: '19px',
@@ -122,7 +168,7 @@ export class MainScene extends Phaser.Scene {
         [glow, body, symbol]
       )
 
-      piece.setDepth(20)
+      piece.setDepth(25)
 
       this.tweens.add({
         targets: piece,
@@ -140,12 +186,14 @@ export class MainScene extends Phaser.Scene {
     this.rollButton = this.add.rectangle(width - 175, 82, 260, 78, 0x23385f)
     this.rollButton.setStrokeStyle(3, 0xffd166)
     this.rollButton.setInteractive({ useHandCursor: true })
+    this.rollButton.setDepth(40)
 
     const label = this.add.text(this.rollButton.x, this.rollButton.y, 'ROLAR DADO', {
       fontSize: '27px',
       color: '#ffe9b5',
       fontStyle: 'bold'
     }).setOrigin(0.5)
+    label.setDepth(41)
 
     this.rollButton.on('pointerover', () => {
       this.rollButton.setFillStyle(0x315083)
