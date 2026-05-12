@@ -16,7 +16,9 @@ export class MainScene extends Phaser.Scene {
   private eventTitle!: Phaser.GameObjects.Text
   private shieldText!: Phaser.GameObjects.Text
   private rollButton!: Phaser.GameObjects.Rectangle
+  private startOverlay!: Phaser.GameObjects.Container
   private rolling = false
+  private started = false
 
   constructor() {
     super('MainScene')
@@ -43,8 +45,65 @@ export class MainScene extends Phaser.Scene {
     this.createPieces(width, height)
     this.createRollButton(width, height)
     this.createAssetPreview(width, height)
+    this.createStartOverlay(width, height)
 
     this.updateUI()
+  }
+
+  private createStartOverlay(width: number, height: number) {
+    const shade = this.add.rectangle(width / 2, height / 2, width, height, 0x02030a, 0.82)
+    const card = this.add.rectangle(width / 2, height / 2, 720, 420, 0x10152a, 0.96)
+    card.setStrokeStyle(3, 0xffd166, 0.55)
+
+    const sun = this.add.circle(width / 2, height / 2 - 156, 58, 0xffd166, 0.32)
+    const title = this.add.text(width / 2, height / 2 - 92, 'A Jornada Noturna de Rá', {
+      fontSize: '46px',
+      color: '#ffd77a',
+      fontStyle: 'bold'
+    }).setOrigin(0.5)
+
+    const subtitle = this.add.text(width / 2, height / 2 - 28, 'Atravesse a Duat, enfrente Apófis e faça o sol nascer.', {
+      fontSize: '22px',
+      color: '#ffe8b4'
+    }).setOrigin(0.5)
+
+    const startButton = this.add.rectangle(width / 2, height / 2 + 82, 310, 82, 0x315083)
+    startButton.setStrokeStyle(3, 0xffd166)
+    startButton.setInteractive({ useHandCursor: true })
+
+    const startLabel = this.add.text(width / 2, height / 2 + 82, 'INICIAR PARTIDA', {
+      fontSize: '28px',
+      color: '#fff0bf',
+      fontStyle: 'bold'
+    }).setOrigin(0.5)
+
+    const hint = this.add.text(width / 2, height / 2 + 164, 'Versão premium inicial • 4 jogadores • turno local', {
+      fontSize: '16px',
+      color: '#b7e4ff'
+    }).setOrigin(0.5)
+
+    this.startOverlay = this.add.container(0, 0, [shade, card, sun, title, subtitle, startButton, startLabel, hint])
+    this.startOverlay.setDepth(100)
+
+    this.tweens.add({
+      targets: sun,
+      scale: 1.12,
+      alpha: 0.58,
+      duration: 1100,
+      yoyo: true,
+      repeat: -1
+    })
+
+    startButton.on('pointerdown', () => {
+      this.started = true
+      this.tweens.add({
+        targets: this.startOverlay,
+        alpha: 0,
+        duration: 550,
+        ease: 'Sine.easeInOut',
+        onComplete: () => this.startOverlay.destroy()
+      })
+    })
   }
 
   private createAtmosphere(width: number, height: number) {
@@ -209,7 +268,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   private handleTurn() {
-    if (this.state.winnerId !== null || this.rolling) return
+    if (!this.started || this.state.winnerId !== null || this.rolling) return
 
     this.rolling = true
     this.animateDice(() => {
