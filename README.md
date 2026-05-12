@@ -26,6 +26,7 @@ Criar uma versão digital premium, jogável no navegador, com visual egípcio, t
 - Sistema de vitória
 - Cartas/eventos animados
 - Atmosfera visual egípcia
+- Sistema inicial de áudio procedural
 - Preparação para multiplayer futuro
 
 ## Estrutura de assets
@@ -58,7 +59,7 @@ O projeto publica automaticamente no GitHub Pages via GitHub Actions.
 ## Objetivos futuros
 
 - Multiplayer online
-- Sons e trilha sonora
+- Trilha sonora egípcia
 - Peças originais recortadas automaticamente
 - Refinamento total do tabuleiro
 - IA para modo solo
