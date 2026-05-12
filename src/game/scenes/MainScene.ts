@@ -211,30 +211,36 @@ export class MainScene extends Phaser.Scene {
 
     this.state.players.forEach((player, index) => {
       const start = BOARD_PATH[0]
-      const glow = this.add.circle(0, 0, 28, colors[index], 0.26)
-      const body = this.add.circle(0, 0, 17, colors[index])
-      const symbol = this.add.text(0, -1, symbols[index], {
-        fontSize: '19px',
+      const glow = this.add.circle(0, 0, 30, colors[index], 0.32)
+      const shadow = this.add.ellipse(0, 18, 44, 14, 0x000000, 0.28)
+      const pedestal = this.add.rectangle(0, 10, 34, 16, colors[index], 0.95)
+      const figure = this.add.triangle(0, -10, 0, -28, -18, 14, 18, 14, colors[index], 1)
+      const head = this.add.circle(0, -28, 10, 0xffe1a8, 1)
+      const symbol = this.add.text(0, 8, symbols[index], {
+        fontSize: '15px',
         color: '#ffffff',
         fontStyle: 'bold'
       }).setOrigin(0.5)
 
-      body.setStrokeStyle(3, 0xffffff)
+      pedestal.setStrokeStyle(2, 0xffffff)
+      figure.setStrokeStyle(2, 0xffffff)
+      head.setStrokeStyle(2, 0xffffff)
 
       const piece = this.add.container(
         (start.x / 100) * width + index * 19,
         (start.y / 100) * height,
-        [glow, body, symbol]
+        [shadow, glow, pedestal, figure, head, symbol]
       )
 
       piece.setDepth(25)
 
       this.tweens.add({
         targets: piece,
-        scale: 1.08,
+        y: piece.y - 6,
         duration: 850,
         yoyo: true,
-        repeat: -1
+        repeat: -1,
+        ease: 'Sine.easeInOut'
       })
 
       this.pieces.push(piece)
@@ -291,27 +297,31 @@ export class MainScene extends Phaser.Scene {
     const dice = rollDice()
     this.state.lastDice = dice
 
-    currentPlayer.position = Math.min(BOARD_PATH.length - 1, currentPlayer.position + dice)
-    const targetCell = BOARD_PATH[currentPlayer.position]
+    const from = currentPlayer.position
+    const to = Math.min(BOARD_PATH.length - 1, currentPlayer.position + dice)
+    currentPlayer.position = to
 
-    this.movePiece(currentPlayer.id, targetCell.x, targetCell.y)
+    this.movePieceAlongPath(currentPlayer.id, from, to, () => {
+      const targetCell = BOARD_PATH[currentPlayer.position]
+      const message = applyCellEffect(currentPlayer, targetCell, BOARD_PATH.length)
+      this.state.message = `${currentPlayer.name} tirou ${dice}. ${message}`
+      this.playCellEffect(targetCell.type)
 
-    const message = applyCellEffect(currentPlayer, targetCell, BOARD_PATH.length)
-    this.state.message = `${currentPlayer.name} tirou ${dice}. ${message}`
+      if (currentPlayer.position >= BOARD_PATH.length - 1) {
+        this.state.winnerId = currentPlayer.id
+        this.state.message = `${currentPlayer.name} venceu A Jornada Noturna de Rá. O sol nasceu!`
+        this.playVictoryEffect()
+      }
 
-    this.playCellEffect(targetCell.type)
+      const finalCell = BOARD_PATH[currentPlayer.position]
+      this.movePiece(currentPlayer.id, finalCell.x, finalCell.y, 260)
 
-    if (currentPlayer.position >= BOARD_PATH.length - 1) {
-      this.state.winnerId = currentPlayer.id
-      this.state.message = `${currentPlayer.name} venceu A Jornada Noturna de Rá. O sol nasceu!`
-      this.playVictoryEffect()
-    }
+      if (!targetCell.extraTurn && this.state.winnerId === null) {
+        this.state.currentPlayerIndex = getNextPlayerIndex(this.state)
+      }
 
-    if (!targetCell.extraTurn && this.state.winnerId === null) {
-      this.state.currentPlayerIndex = getNextPlayerIndex(this.state)
-    }
-
-    this.updateUI()
+      this.updateUI()
+    })
   }
 
   private animateDice(onDone: () => void) {
@@ -332,7 +342,33 @@ export class MainScene extends Phaser.Scene {
     })
   }
 
-  private movePiece(id: number, xPercent: number, yPercent: number) {
+  private movePieceAlongPath(id: number, from: number, to: number, onComplete: () => void) {
+    const steps: number[] = []
+    for (let i = from + 1; i <= to; i += 1) steps.push(i)
+
+    if (steps.length === 0) {
+      onComplete()
+      return
+    }
+
+    const runStep = (stepIndex: number) => {
+      const cell = BOARD_PATH[steps[stepIndex]]
+      this.movePiece(id, cell.x, cell.y, 230, () => {
+        if (stepIndex >= steps.length - 1) onComplete()
+        else runStep(stepIndex + 1)
+      })
+    }
+
+    runStep(0)
+  }
+
+  private movePiece(
+    id: number,
+    xPercent: number,
+    yPercent: number,
+    duration = 760,
+    onComplete?: () => void
+  ) {
     const width = this.scale.width
     const height = this.scale.height
     const piece = this.pieces[id]
@@ -341,8 +377,9 @@ export class MainScene extends Phaser.Scene {
       targets: piece,
       x: (xPercent / 100) * width + id * 19,
       y: (yPercent / 100) * height,
-      duration: 760,
-      ease: 'Sine.easeInOut'
+      duration,
+      ease: 'Sine.easeInOut',
+      onComplete
     })
   }
 
